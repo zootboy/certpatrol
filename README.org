@@ -61,8 +61,10 @@ It is very important to understand that certificates do not make a statement abo
 ** Credits
 
 Prototyped by 20after4 (Mukunda Modell),
-reengineered by [[http://www.deepco.de][Aiko Barz]].
+Re-engineered by [[http://www.deepco.de][Aiko Barz]].
+Wildcard functionality was contributed by Georg Koppen, JonDos GmbH 2010.
 New features by Gabor X Toth.
+SHA256 support by Christoph Biedl.
 Originally conceived, planned and continously refined by [[http://psyced.org/~lynX][the lynX]] (Carlo v. Loesch).
 
 ** Testing the add-on
