@@ -9,11 +9,7 @@
 /* ***** BEGIN LICENSE BLOCK *****
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
- * ''Certificate Patrol'' was conceived by Carlo v. Loesch and
- * implemented by Aiko Barz, Gabor Adam Toth, Carlo v. Loesch and Mukunda Modell.
- * Wildcard functionality was contributed by Georg Koppen, JonDos GmbH 2010.
- *
- * http://patrol.psyced.org
+ * http://patrol.psyced.org - Authors and credits, see README.
  *
  * The contents of this file are subject to the Mozilla Public License Version
  * 1.1 (the "License"); you may not use this file except in compliance with
@@ -89,14 +85,14 @@ var CertPatrol = {
 ##	    // why do most web apps still use this 1970s legacy interface?
 	    if (!exists) {
 		this.dbh.executeSimpleSQL("CREATE TABLE version (version INT, extversion TEXT)");
-		this.dbh.executeSimpleSQL("INSERT INTO version (version, extversion) VALUES (3, '"+ this.version +"')");
+		this.dbh.executeSimpleSQL("INSERT INTO version (version, extversion) VALUES (4, '"+ this.version +"')");
 		this.dbh.executeSimpleSQL(
 		  "CREATE TABLE certificates ("+
 		  "  host VARCHAR, commonName VARCHAR, organization VARCHAR, organizationalUnit VARCHAR, "+
 		  "  serialNumber VARCHAR, emailAddress VARCHAR, notBeforeGMT VARCHAR, notAfterGMT VARCHAR, "+
 		  "  issuerCommonName VARCHAR, issuerOrganization VARCHAR, issuerOrganizationUnit VARCHAR, "+
-		  "  md5Fingerprint VARCHAR, sha1Fingerprint VARCHAR, "+
-		  "  issuerMd5Fingerprint VARCHAR, issuerSha1Fingerprint VARCHAR, "+
+		  "  md5Fingerprint VARCHAR, sha1Fingerprint VARCHAR, sha256Fingerprint VARCHAR, "+
+		  "  issuerMd5Fingerprint VARCHAR, issuerSha1Fingerprint, issuerSha256Fingerprint VARCHAR, "+
 		  "  cert BLOB, flags INT, stored INT)");
 	    } else {
 		var stmt = this.dbh.createStatement("SELECT version FROM version");
@@ -115,6 +111,12 @@ var CertPatrol = {
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN flags INT");
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN stored INT");
 		    this.dbh.executeSimpleSQL("UPDATE version SET version = 3");
+		}
+
+		if (version < 4) {
+		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN Sha256Fingerprint VARCHAR");
+		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN issuerSha256Fingerprint VARCHAR");
+		    this.dbh.executeSimpleSQL("UPDATE version SET version = 4");
 		}
 
 		var extversion;
@@ -142,23 +144,35 @@ var CertPatrol = {
 
 	    // Prepared statements
 	    this.db = {
-		selectAll: this.dbh.createStatement("SELECT * FROM certificates"),
-		selectHost: this.dbh.createStatement("SELECT * FROM certificates WHERE host=?1"),
-		selectWild: this.dbh.createStatement("SELECT * FROM certificates WHERE md5Fingerprint=?12 AND sha1Fingerprint=?13"),
+		selectAll: this.dbh.createStatement("SELECT"+
+		  "  host, commonName, organization, organizationalUnit, serialNumber, emailAddress, "+
+		  "  notBeforeGMT, notAfterGMT, issuerCommonName, issuerOrganization, issuerOrganizationUnit, "+
+		  "  md5Fingerprint, sha1Fingerprint, sha256Fingerprint, issuerMd5Fingerprint, issuerSha1Fingerprint, issuerSha256Fingerprint, cert, flags, stored "+
+		  "  FROM certificates"),
+		selectHost: this.dbh.createStatement("SELECT"+
+		  "  host, commonName, organization, organizationalUnit, serialNumber, emailAddress, "+
+		  "  notBeforeGMT, notAfterGMT, issuerCommonName, issuerOrganization, issuerOrganizationUnit, "+
+		  "  md5Fingerprint, sha1Fingerprint, sha256Fingerprint, issuerMd5Fingerprint, issuerSha1Fingerprint, issuerSha256Fingerprint, cert, flags, stored "+
+		  "  FROM certificates WHERE host=?1"),
+		selectWild: this.dbh.createStatement("SELECT"+
+		  "  host, commonName, organization, organizationalUnit, serialNumber, emailAddress, "+
+		  "  notBeforeGMT, notAfterGMT, issuerCommonName, issuerOrganization, issuerOrganizationUnit, "+
+		  "  md5Fingerprint, sha1Fingerprint, sha256Fingerprint, issuerMd5Fingerprint, issuerSha1Fingerprint, issuerSha256Fingerprint, cert, flags, stored "+
+		  "  FROM certificates WHERE md5Fingerprint=?12 AND sha1Fingerprint=?13 AND sha256Fingerprint=?14"),
 		insert: this.dbh.createStatement(
 		  "INSERT INTO certificates ("+
 		  "  host, commonName, organization, organizationalUnit, serialNumber, emailAddress, "+
 		  "  notBeforeGMT, notAfterGMT, issuerCommonName, issuerOrganization, issuerOrganizationUnit, "+
-		  "  md5Fingerprint, sha1Fingerprint, issuerMd5Fingerprint, issuerSha1Fingerprint, cert, flags, stored) "+
-		  "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18)"),
+		  "  md5Fingerprint, sha1Fingerprint, sha256Fingerprint, issuerMd5Fingerprint, issuerSha1Fingerprint, issuerSha256Fingerprint, cert, flags, stored) "+
+		  "VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20)"),
 		update: this.dbh.createStatement(
 		  "UPDATE certificates SET "+
 		  "  commonName=?2, organization=?3, organizationalUnit=?4, serialNumber=?5, emailAddress=?6, "+
 		  "  notBeforeGMT=?7, notAfterGMT=?8, issuerCommonName=?9, issuerOrganization=?10, issuerOrganizationUnit=?11, "+
-		  "  md5Fingerprint=?12, sha1Fingerprint=?13, issuerMd5Fingerprint=?14, issuerSha1Fingerprint=?15, cert=?16, flags=?17, stored=?18 "+
+		  "  md5Fingerprint=?12, sha1Fingerprint=?13, sha256Fingerprint=?14, issuerMd5Fingerprint=?15, issuerSha1Fingerprint=?16, issuerSha256Fingerprint=?17, cert=?18, flags=?19, stored=?20 "+
 		  "WHERE host=?1"),
 		delHost: this.dbh.createStatement("DELETE FROM certificates WHERE host=?1"),
-		delSince: this.dbh.createStatement("DELETE FROM certificates WHERE stored >= ?18"),
+		delSince: this.dbh.createStatement("DELETE FROM certificates WHERE stored >= ?20"),
 		delAll: this.dbh.createStatement("DELETE FROM certificates"),
 	    };
 	} catch (err) {
@@ -303,8 +317,10 @@ var CertPatrol = {
 		issuerOrganizationUnit: "",
 		md5Fingerprint: "",
 		sha1Fingerprint: "",
+		sha256Fingerprint: "",
 		issuerMd5Fingerprint: "",
 		issuerSha1Fingerprint: "",
+		issuerSha256Fingerprint: "",
 		cert: null,
 	    },
 	    old: {
@@ -320,8 +336,10 @@ var CertPatrol = {
 		issuerOrganizationUnit: "",
 		md5Fingerprint: "",
 		sha1Fingerprint: "",
+		sha256Fingerprint: "",
 		issuerMd5Fingerprint: "",
 		issuerSha1Fingerprint: "",
+		issuerSha256Fingerprint: "",
 		cert: null,
 	    },
 	};
@@ -334,6 +352,7 @@ var CertPatrol = {
 	if (cert.issuer) {
 	    obj.issuerMd5Fingerprint = cert.issuer.md5Fingerprint;
 	    obj.issuerSha1Fingerprint = cert.issuer.sha1Fingerprint;
+	    obj.issuerSha256Fingerprint = cert.issuer.sha256Fingerprint;
 	} else {
 	    //this.log("no issuer: "+ [cert.commonName, cert.issuer, cert.sha1Fingerprint]);
 	}
@@ -342,7 +361,7 @@ var CertPatrol = {
 	  "commonName", "organization", "organizationalUnit", "serialNumber",
 	  "emailAddress", // "subjectAlternativeName",
 	  "issuerCommonName", "issuerOrganization", "issuerOrganizationUnit",
-	  "md5Fingerprint", "sha1Fingerprint" ];
+	  "md5Fingerprint", "sha1Fingerprint", "sha256Fingerprint" ];
 	for (var i in keys)
 	  obj[keys[i]] = cert[keys[i]];
 
@@ -423,7 +442,7 @@ var CertPatrol = {
 	var obj = browser || win.top;
 	// store certs in the browser object so we can
 	// show only one notification per host for a browser tab
-	var key = [host, cert.md5Fingerprint, cert.sha1Fingerprint].join('|');
+	var key = [host, cert.md5Fingerprint, cert.sha256Fingerprint, cert.sha256Fingerprint].join('|');
 	if (obj.__certs && obj.__certs[key] && cert.equals(obj.__certs[key]))
 	  return;
 	obj.__certs = obj.__certs || {};
@@ -499,14 +518,16 @@ var CertPatrol = {
 		old.issuerOrganizationUnit = stmt.getUTF8String(10);
 		old.md5Fingerprint = stmt.getUTF8String(11);
 		old.sha1Fingerprint = stmt.getUTF8String(12);
-		old.issuerMd5Fingerprint = stmt.getUTF8String(13);
-		old.issuerSha1Fingerprint = stmt.getUTF8String(14);
+		old.sha256Fingerprint = stmt.getUTF8String(13);
+		old.issuerMd5Fingerprint = stmt.getUTF8String(14);
+		old.issuerSha1Fingerprint = stmt.getUTF8String(15);
+		old.issuerSha256Fingerprint = stmt.getUTF8String(16);
 		var blob = {};
-		stmt.getBlob(15, {}, blob);
+		stmt.getBlob(17, {}, blob);
 		if (blob.value.length)
 		  old.cert = this.byteArrayToCert(blob);
-		certobj.flags = stmt.getInt64(16);
-		old.stored = stmt.getInt64(17) * 1000;
+		certobj.flags = stmt.getInt64(18);
+		old.stored = stmt.getInt64(19) * 1000;
 	    }
 	} catch(err) {
 	    this.warn("Error trying to check certificate: ", err);
@@ -523,6 +544,7 @@ var CertPatrol = {
 	    // and return if everything looks fine.
 	    if (!old.cert &&
 	      old.sha1Fingerprint == now.sha1Fingerprint &&
+	      old.sha256Fingerprint == now.sha256Fingerprint &&
 	      old.md5Fingerprint == now.md5Fingerprint)
 	      return this.saveCert(certobj);
 
@@ -615,12 +637,14 @@ var CertPatrol = {
 		    stmt.bindUTF8StringParameter(10, now.issuerOrganizationUnit);
 		    stmt.bindUTF8StringParameter(11, now.md5Fingerprint);
 		    stmt.bindUTF8StringParameter(12, now.sha1Fingerprint);
-		    stmt.bindUTF8StringParameter(13, now.issuerMd5Fingerprint);
-		    stmt.bindUTF8StringParameter(14, now.issuerSha1Fingerprint);
+		    stmt.bindUTF8StringParameter(13, now.sha256Fingerprint);
+		    stmt.bindUTF8StringParameter(14, now.issuerMd5Fingerprint);
+		    stmt.bindUTF8StringParameter(15, now.issuerSha1Fingerprint);
+		    stmt.bindUTF8StringParameter(16, now.issuerSha256Fingerprint);
 		    var der = now.cert.getRawDER({});
-		    stmt.bindBlobParameter(15, der, der.length);
-		    stmt.bindInt64Parameter(16, 0);
-		    stmt.bindInt64Parameter(17, parseInt(new Date().getTime() / 1000));
+		    stmt.bindBlobParameter(17, der, der.length);
+		    stmt.bindInt64Parameter(18, 0);
+		    stmt.bindInt64Parameter(19, parseInt(new Date().getTime() / 1000));
 		    stmt.execute();
 		} catch(err) {
 		    this.warn("Error trying to insert certificate for "+
@@ -655,7 +679,7 @@ var CertPatrol = {
 	// we have one but no SHA1 fingerprint we should show it for security's
 	// sake...
 ##	alert("doing wildcardCertCheck for "+ sha1Fingerprint);
-	if (cert.commonName.charAt(0) === '*' && cert.md5Fingerprint && cert.sha1Fingerprint) {
+	if (cert.commonName.charAt(0) === '*' && cert.md5Fingerprint && cert.sha1Fingerprint && cert.sha256Fingerprint) {
 	    // We got one, check now if we have it already. If not, return false and
 	    // the certificate will be shown. Otherwise, return yes and the new cert
 	    // dialog will be omitted.
@@ -664,6 +688,7 @@ var CertPatrol = {
 		// starts counting from 0, so ?13 is 12 here. you gotta love it.
 		stmt.bindUTF8StringParameter(11, cert.md5Fingerprint);
 		stmt.bindUTF8StringParameter(12, cert.sha1Fingerprint);
+		stmt.bindUTF8StringParameter(13, cert.sha256Fingerprint);
 		if (stmt.executeStep()) {
 		    return true;
 		} else {
@@ -703,14 +728,16 @@ var CertPatrol = {
 	    stmt.bindUTF8StringParameter(10, cert.issuerOrganizationUnit);
 	    stmt.bindUTF8StringParameter(11, cert.md5Fingerprint);
 	    stmt.bindUTF8StringParameter(12, cert.sha1Fingerprint);
+	    stmt.bindUTF8StringParameter(13, cert.sha256Fingerprint);
             if (cert.issuer) {
-	        stmt.bindUTF8StringParameter(13, cert.issuer.md5Fingerprint);
-	        stmt.bindUTF8StringParameter(14, cert.issuer.sha1Fingerprint);
+	        stmt.bindUTF8StringParameter(14, cert.issuer.md5Fingerprint);
+	        stmt.bindUTF8StringParameter(15, cert.issuer.sha1Fingerprint);
+	        stmt.bindUTF8StringParameter(16, cert.issuer.sha256Fingerprint);
             }
 	    var der = cert.getRawDER({});
-	    stmt.bindBlobParameter(15, der, der.length);
-	    stmt.bindInt64Parameter(16, certobj.flags);
-	    stmt.bindInt64Parameter(17, parseInt(new Date().getTime() / 1000));
+	    stmt.bindBlobParameter(17, der, der.length);
+	    stmt.bindInt64Parameter(18, certobj.flags);
+	    stmt.bindInt64Parameter(19, parseInt(new Date().getTime() / 1000));
 	    stmt.execute();
 	} catch(err) {
 	    this.warn("Error trying to update certificate: ", err);
@@ -853,6 +880,7 @@ var CertPatrol = {
 		    emailAddress: stmt.getUTF8String(5),
 		    md5Fingerprint: stmt.getUTF8String(11),
 		    sha1Fingerprint: stmt.getUTF8String(12),
+		    sha256Fingerprint: stmt.getUTF8String(13),
 		    validity: {
 			notBefore: stmt.getUTF8String(6),
 			notAfter: stmt.getUTF8String(7),
@@ -861,14 +889,15 @@ var CertPatrol = {
 			commonName: stmt.getUTF8String(8),
 			organization: stmt.getUTF8String(9),
 			organizationUnit: stmt.getUTF8String(10),
-			issuerMd5Fingerprint: stmt.getUTF8String(13),
-			issuerSha1Fingerprint: stmt.getUTF8String(14),
+			issuerMd5Fingerprint: stmt.getUTF8String(14),
+			issuerSha1Fingerprint: stmt.getUTF8String(15),
+			issuerSha256Fingerprint: stmt.getUTF8String(16),
 		    },
-		    flags: stmt.getInt64(16),
-		    stored: stmt.getInt64(17) * 1000,
+		    flags: stmt.getInt64(18),
+		    stored: stmt.getInt64(19) * 1000,
 		};
 		var blob = {};
-		stmt.getBlob(15, {}, blob);
+		stmt.getBlob(17, {}, blob);
 		if (blob.value.length) {
 		    var cert = this.byteArrayToCert(blob);
 		    if (cert)
