@@ -9,14 +9,13 @@
     <em:name>Certificate Patrol</em:name>
     <em:version>2.0.16</em:version>
     <em:unpack>false</em:unpack>
-    <em:creator>Aiko Barz, tg, 20after4, Christoph Biedl and symlynX</em:creator>
+    <em:creator>Carlo v. Loesch</em:creator>
     <em:developer>Aiko Barz</em:developer>
-    <em:developer>Mukunda Modell</em:developer>
-    <em:developer>Carlo v. Loesch</em:developer>
     <em:developer>Gabor X Toth</em:developer>
-    <em:developer>Christoph Biedl</em:developer>
+    <em:developer>Mukunda Modell</em:developer>
+    <em:contributor>Georg Koppen</em:contributor>
+    <em:contributor>Christoph Biedl</em:contributor>
     <!-- em:translator>French? Spanish? anyone?</em:translator -->
-    <!-- em:contributor>...</em:contributor -->
     <em:homepageURL>http://patrol.psyced.org</em:homepageURL>
     <em:optionsURL>chrome://certpatrol/content/prefs.xul</em:optionsURL>
     <!-- em:updateURL>http://www.foo.com/update.cgi?id=%ITEM_ID%&amp;version=%ITEM_VERSION%</em:updateURL -->
