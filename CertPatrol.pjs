@@ -131,7 +131,8 @@ var CertPatrol = {
 
     // Application trigger
     init: function() {
-	this.prefs = Cc["@mozilla.org/preferences-service;1"]
+##	// Cc undefined in Thunderbird 3.1.10
+	if (Cc) this.prefs = Cc["@mozilla.org/preferences-service;1"]
 	  .getService(Ci.nsIPrefService)
 	  .getBranch("certpatrol.")
 	  .QueryInterface(Ci.nsIPrefBranch2);
