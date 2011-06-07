@@ -29,8 +29,8 @@
       $("cmfinger").setAttribute("label", certobj.lang.fingerprints);
 
       $("cmhierarchy").setAttribute("label", certobj.lang.hierarchy);
-      $("cmdetailso").setAttribute("label", certobj.lang.viewDetails);
-      $("cmdetailsn").setAttribute("label", certobj.lang.viewDetails);
+      $("cmdetailso").setAttribute("label", certobj.lang.viewHierarchy);
+      $("cmdetailsn").setAttribute("label", certobj.lang.viewHierarchy);
       if (!certobj.sql.cert) $("cmdetailso").disabled = true;
 
       $("cmcnl").value = certobj.lang.commonName;

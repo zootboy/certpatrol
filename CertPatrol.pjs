@@ -327,6 +327,8 @@ var CertPatrol = {
 		  md5Fingerprint:this.strings.getString("md5Fingerprint"),
 		  sha1Fingerprint:this.strings.getString("sha1Fingerprint"),
 		  viewDetails:this.strings.getString("viewDetails"),
+## hierarchy should somehow be shown by default.. FIXME
+		  viewHierarchy:this.strings.getString("viewHierarchy"),
 		  hierarchy:this.strings.getString("hierarchy"),
 	    },
 	};

@@ -25,7 +25,7 @@
       $("cmfinger").setAttribute("label", certobj.lang.fingerprints);
 
       $("cmhierarchy").setAttribute("label", certobj.lang.hierarchy);
-      $("cmdetails").setAttribute("label", certobj.lang.viewDetails);
+      $("cmdetails").setAttribute("label", certobj.lang.viewHierarchy);
       
       $("cmcnl").value = certobj.lang.commonName;
       $("cmol").value = certobj.lang.organization;
