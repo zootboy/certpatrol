@@ -129,7 +129,7 @@
 	</row>
 	<row>
 	  <label />
-	  <button id="cmdetails" oncommand="CertPatrol.viewCert(certobj.moz.cert)" label="&viewDetails;" />
+	  <button id="cmdetails" oncommand="CertPatrol.viewCert(certobj.moz.cert)" label="&viewHierarchy;" />
 	</row>
       </rows>
     </grid>

@@ -72,11 +72,6 @@
       </columns>
     
       <rows>
-        <!--row>
-          <label value="" />
-          <caption id="cmold" label="&oldCert;" />
-          <caption id="cmnew" label="&newCert;" />
-        </row-->
         <groupbox>
           <caption id="cmissto" label="&issuedTo;" />
         </groupbox>
@@ -192,17 +187,17 @@
         </groupbox>
 	<row>
 	  <label value="&oldCert;" />
-	  <hbox>
+	  <vbox>
 	    <textbox flex="6" id="cmchaino" multiline="true" readonly="true" />
-	    <button  flex="1" id="cmdetailso" oncommand="CertPatrol.viewCert(certobj.sql.cert)" label="&viewDetails;" />
-	  </hbox>
+	    <button  flex="1" id="cmdetailso" oncommand="CertPatrol.viewCert(certobj.sql.cert)" label="&viewHierarchy;" />
+	  </vbox>
 	</row>
 	<row>
 	  <label value="&newCert;" />
-	  <hbox>
+	  <vbox>
 	    <textbox flex="6" id="cmchainn" multiline="true" readonly="true" />
-	    <button  flex="1" id="cmdetailsn" oncommand="CertPatrol.viewCert(certobj.moz.cert)" label="&viewDetails;" />
-	  </hbox>
+	    <button  flex="1" id="cmdetailsn" oncommand="CertPatrol.viewCert(certobj.moz.cert)" label="&viewHierarchy;" />
+	  </vbox>
 	</row>
       </rows>
     </grid>
