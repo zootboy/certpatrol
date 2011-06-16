@@ -66,6 +66,9 @@
 <!ENTITY certManager.groupByCA		"Group by Root Authority">
 <!ENTITY certManager.groupByCA.key	"G">
 
+<!ENTITY certManager.groupByCA		"Group by CA">
+<!ENTITY certManager.groupByCA.key	"G">
+
 <!ENTITY certManager.issuerOnly			"Check CA only">
 <!ENTITY certManager.issuerOnly.set		"Set CA-only checking">
 <!ENTITY certManager.issuerOnly.set.key		"S">
