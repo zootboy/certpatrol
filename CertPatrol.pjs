@@ -47,14 +47,20 @@
 // This source code is formatted according to half-indented KNF.
 var CertPatrol = {
     CHECK_ISSUER_ONLY: 1,
+    extID: "CertPatrol@PSYC.EU",
     locale: {},
 
     // Main
     onLoad: function() {
 	this.initialized = true;
 ##	//this.strings = document.getElementById("CertPatrol-strings");
-	this.dbinit();
-	this.init();
+
+	var self = this;
+	this.getMyVersion(function(version) {
+	    self.version = version;
+	    self.dbinit();
+	    self.init();
+	});
     },
 
     // DB init
@@ -83,8 +89,8 @@ var CertPatrol = {
 ##	    // field. how i love SQL for its terrific flexibility...  ;)
 ##	    // why do most web apps still use this 1970s legacy interface?
 	    if (!exists) {
-		this.dbh.executeSimpleSQL("CREATE TABLE version (version INT)");
-		this.dbh.executeSimpleSQL("INSERT INTO version (version) VALUES (3)");
+		this.dbh.executeSimpleSQL("CREATE TABLE version (version INT, extversion TEXT)");
+		this.dbh.executeSimpleSQL("INSERT INTO version (version, extversion) VALUES (3, '"+ this.version +"')");
 		this.dbh.executeSimpleSQL(
 		  "CREATE TABLE certificates ("+
 		    "host VARCHAR, commonName VARCHAR, organization VARCHAR, organizationalUnit VARCHAR, "+
@@ -94,34 +100,45 @@ var CertPatrol = {
 		    "issuerMd5Fingerprint VARCHAR, issuerSha1Fingerprint VARCHAR, "+
 		    "cert BLOB, flags INT, stored INT)");
 	    } else {
-		var stmt = this.dbh.createStatement("SELECT version FROM version WHERE version < 2");
-		try {
-		    var old = stmt.executeStep();
-		} catch (err) {
-		    this.warn("Error trying to check SQL schema version: ", err);
-		} finally {
-		    stmt.reset();
-		}
-		if (old) {
+		var stmt = this.dbh.createStatement("SELECT version FROM version");
+		stmt.executeStep();
+		var version = stmt.row.version;
+		stmt.reset();
+
+		if (version < 2) {
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN issuerMd5Fingerprint VARCHAR");
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN issuerSha1Fingerprint VARCHAR");
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN cert BLOB");
 		    this.dbh.executeSimpleSQL("UPDATE version SET version = 2");
 		}
 
-		old = null;
-		stmt = this.dbh.createStatement("SELECT version FROM version WHERE version < 3");
-		try {
-		    old = stmt.executeStep();
-		} catch (err) {
-		    this.warn("Error trying to check SQL schema version: ", err);
-		} finally {
-		    stmt.reset();
-		}
-		if (old) {
+		if (version < 3) {
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN flags INT");
 		    this.dbh.executeSimpleSQL("ALTER TABLE certificates ADD COLUMN stored INT");
 		    this.dbh.executeSimpleSQL("UPDATE version SET version = 3");
+		}
+
+		var extversion;
+		try {
+		    var stmt = this.dbh.createStatement("SELECT extversion FROM version");
+		    stmt.executeStep();
+		    extversion = stmt.row.extversion;
+		    stmt.reset();
+		} catch (e) {
+		    this.dbh.executeSimpleSQL("ALTER TABLE version ADD COLUMN extversion TEXT");
+		}
+
+		if (extversion != this.version) {
+		    this.dbh.executeSimpleSQL("UPDATE version SET extversion='"+ this.version +"'");
+
+		    // show release notes for stable versions after upgrade
+		    if (!/[a-z]/.test(this.version)) {
+			var url = "http://patrol.psyced.org/version-"+ this.version +".html";
+			if (typeof gBrowser != "undefined")
+			    gBrowser.selectedTab = gBrowser.addTab(url);
+			else
+			    window.openDialog(url, "_blank");
+		    }
 		}
 	    }
 
@@ -171,6 +188,26 @@ var CertPatrol = {
 	  .QueryInterface(Ci.nsIPrefBranch2);
 
 	this.registerObserver("http-on-examine-response");
+    },
+
+    getMyVersion: function(callback) {
+	try {
+	    // Firefox 4 and later; Mozilla 2 and later
+	    Components.utils.import("resource://gre/modules/AddonManager.jsm");
+	    AddonManager.getAddonByID(this.extID, function(addon) {
+		callback(addon.version);
+	    });
+	} catch (ex) {
+	    // Firefox 3.6 and before; Mozilla 1.9.2 and before
+	    try {
+		var em = Components.classes["@mozilla.org/extensions/manager;1"]
+		    .getService(Components.interfaces.nsIExtensionManager);
+		var addon = em.getItemForID(this.extID);
+		callback(addon.version);
+	    } catch (ex) {
+		callback();
+	    }
+	}
     },
 
     // helper functions for advanced patrol
@@ -227,8 +264,8 @@ var CertPatrol = {
 
     byteArrayToCert: function(ba) {
 	var Cc = Components.classes, Ci = Components.interfaces;
-	var certdb = Cc["@mozilla.org/security/x509certdb;1"].getService(Ci.nsIX509CertDB);
-	return certdb.constructX509FromBase64(window.btoa(this.byteArrayToString(ba.value)));
+	var c = "@mozilla.org/security/x509certdb;1", i= "nsIX509CertDB";
+	return Cc[c].getService(Ci[i]).constructX509FromBase64(window.btoa(this.byteArrayToString(ba.value)));
     },
 
     newCertObj: function() {
@@ -500,12 +537,10 @@ var CertPatrol = {
 	    if (wild && certobj.threat == 0) {
 		certobj.warn.wildcard = true;
 		certobj.event = this.locale.wildEvent;
-		this.outwild(browser, certobj);
-		return;
+	    } else {
+		certobj.event = this.locale.changeEvent +" "+
+	            this.locale["threat"+ certobj.threat];
 	    }
-
-	    certobj.event = this.locale.changeEvent +" "+
-	        this.locale["threat"+ certobj.threat];
 	    this.outchange(browser, certobj);
 
 	    // New certificate
@@ -789,7 +824,8 @@ var CertPatrol = {
     outnew: function(browser, certobj) {
 	var forcePopup = false;
 	try {
-	    if (this.prefs) forcePopup = this.prefs.getBoolPref("popup.new");
+	    if (this.prefs)
+		forcePopup = this.prefs.getBoolPref("popup.new");
 	} catch (err) {}
 
 	var notifyBox = this.getNotificationBox(browser);
@@ -799,7 +835,7 @@ var CertPatrol = {
 ##      // using certobj.host as the id for the notification
 	if (notifyBox && !popup) {
 	    notifyBox.appendNotification(
-		"(CertPatrol) "+ certobj.event +" "+
+		"(CertPatrol) "+ certobj.host +": "+certobj.event +" "+
 		    certobj.moz.commonName +". "+
 		    this.locale.issuedBy +" "+
 		    (certobj.moz.issuerOrganization || certobj.moz.issuerCommonName),
@@ -825,46 +861,11 @@ var CertPatrol = {
 			      "chrome,dialog,modal", certobj, CertPatrol);
     },
 
-    outwild: function(browser, certobj) {
-	var forcePopup = false;
-	try {
-	    if (this.prefs) forcePopup = this.prefs.getBoolPref("popup.wild");
-	} catch (err) {}
-
-	var notifyBox = this.getNotificationBox(browser);
-	var popup = forcePopup || !notifyBox;
-	if (notifyBox && !popup) {
-	    notifyBox.appendNotification(
-		"(CertPatrol) "+ certobj.event +" "+
-		    certobj.moz.commonName +". "+
-		    this.locale.issuedBy +" "+
-		    (certobj.moz.issuerOrganization || certobj.moz.issuerCommonName),
-		certobj.host, null, notifyBox.PRIORITY_INFO_HIGH,
-		[{
-		    label: this.locale.reject,
-		    accessKey: this.locale.reject_key,
-		    callback: function(msg, btn) {
-			CertPatrol.delCert(certobj.host);
-		    }
-		}, {
-		    label: this.locale.viewDetails,
-		    accessKey: this.locale.viewDetails_key,
-		    callback: function(msg, btn) {
-			window.openDialog("chrome://certpatrol/content/new.xul",
-					  "_blank", "chrome,dialog,modal",
-					  certobj, CertPatrol);
-		    }
-		}]);
-	}
-	if (popup)
-	    window.openDialog("chrome://certpatrol/content/change.xul",
-			      "_blank", "chrome,dialog,modal", certobj, CertPatrol);
-    },
-
     outchange: function(browser, certobj) {
 	var forcePopup = false;
 	try {
-	    if (this.prefs) forcePopup = this.prefs.getBoolPref("popup.change");
+	    if (this.prefs)
+		forcePopup = this.prefs.getBoolPref(certobj.warn.wildcard ? "popup.wild" : "popup.change");
 	} catch (err) {}
 
 	var notifyBox = this.getNotificationBox(browser);
@@ -877,7 +878,7 @@ var CertPatrol = {
 		notifyBox.PRIORITY_CRITICAL_HIGH
 	    ];
 	    notifyBox.appendNotification(
-		"(CertPatrol) "+ certobj.event +" "+
+		"(CertPatrol) "+ certobj.host +": "+ certobj.event +" "+
 		    certobj.moz.commonName +". "+
 		    this.locale.issuedBy +" "+
 		    (certobj.moz.issuerOrganization || certobj.moz.issuerCommonName)
@@ -941,10 +942,10 @@ var CertPatrol = {
 	node.setAttribute("rows", chain.length);
     },
 
-    viewCert: function(cert) {
+    viewCert: function(cert, parent) {
 	Components.classes["@mozilla.org/nsCertificateDialogs;1"]
             .getService(Components.interfaces.nsICertificateDialogs)
-	    .viewCert(null, cert);
+	    .viewCert(parent, cert);
     },
 
     psycText: function(template, vars) {
