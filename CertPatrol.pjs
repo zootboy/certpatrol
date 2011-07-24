@@ -344,16 +344,17 @@ var CertPatrol = {
 	for (var i in keys)
 	  obj[keys[i]] = cert[keys[i]];
 
-	var san = this.findASN1Object(cert.ASN1Structure, /^Certificate Subject Alt Name$/);
-	//this.log("SAN:", [san.displayName, san.displayValue]);
-	var m, re = /DNS Name: ((?:\*\.)?[a-z0-9.-]+)/g;
 	obj.subjectAltName = [];
-	while (m = re.exec(san.displayValue))
-	  obj.subjectAltName.push(m[1]);
-	this.log("SAN:", obj.subjectAltName);
-	// how do we use this now?
+	var san = this.findASN1Object(cert.ASN1Structure, /^Certificate Subject Alt Name$/);
+	if (san) {
+	    //this.log("SAN:", [san.displayName, san.displayValue]);
+	    var m, re = /DNS Name: ((?:\*\.)?[a-z0-9.-]+)/g;
+	    while (m = re.exec(san.displayValue))
+		obj.subjectAltName.push(m[1]);
+##	    this.log("SAN:", obj.subjectAltName);
+	    // how do we use this now?
+	}
     },
-
 
     registerObserver: function(topic) {
 	var observerService = Components.classes["@mozilla.org/observer-service;1"]
@@ -632,7 +633,7 @@ var CertPatrol = {
 	    if (wild) {
 		certobj.warn.wildcard = true;
 		certobj.event = this.locale.wildEvent;
-		this.outwild(browser, certobj);
+		this.outchange(browser, certobj);
 		return;
 	    }
 	    certobj.event = this.locale.newEvent;
@@ -913,6 +914,16 @@ var CertPatrol = {
 		}
 	    }]);
 	    n.persistence = 10; // make sure it stays visible after redirects
+
+	    try {
+		var timeout = this.prefs.getIntPref("notify.timeout");
+		if (timeout > 0) {
+		    setTimeout(function() {
+			notifyBox.removeNotification(n);
+			n = null;
+		    }, timeout * 1000);
+		}
+	    } catch (err) {}
 	}
 	if (popup)
 	  browser.contentWindow.openDialog("chrome://certpatrol/content/new.xul", "_blank",
@@ -961,6 +972,19 @@ var CertPatrol = {
 		}
 	    }]);
 	    n.persistence = 10; // make sure it stays visible after redirects
+
+	    if (certobj.threat == 0) {
+		try {
+		    var timeout = this.prefs.getIntPref("notify.timeout");
+		    if (timeout > 0) {
+			setTimeout(function() {
+			    notifyBox.removeNotification(n);
+			    CertPatrol.saveCert(certobj);
+			    n = certobj = null;
+			}, timeout * 1000);
+		    }
+		} catch (err) {}
+	    }
 	}
 	if (popup)
 	  browser.contentWindow.openDialog("chrome://certpatrol/content/change.xul", "_blank",
