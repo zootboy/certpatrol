@@ -443,6 +443,8 @@ var CertPatrol = {
     // Certificate check
     certCheck: function(browser, certobj) {
 ##	this.log(">> certCheck: "+ certobj.host);
+        if (this.isIgnoredHost(certobj.host)) return;
+
 	var Cc = Components.classes, Ci = Components.interfaces;
 	var now = certobj.now, old = certobj.old;
 	var found = false;
@@ -635,10 +637,9 @@ var CertPatrol = {
 	    if (wild) {
 		certobj.warn.wildcard = true;
 		certobj.event = this.locale.wildEvent;
-		this.outchange(browser, certobj);
-		return;
-	    }
-	    certobj.event = this.locale.newEvent;
+	    } else {
+	        certobj.event = this.locale.newEvent;
+            }
 	    this.outnew(browser, certobj);
 	}
     },
@@ -883,10 +884,37 @@ var CertPatrol = {
 	return certs;
     },
 
+    isIgnoredHost: function(host) {
+        try {
+            var list = this.prefs.getCharPref("hosts.ignore");
+        } catch (e) {
+            return false;
+        }
+
+        return new RegExp('(?:^|[\\s,])'+host.replace(/\./g,'\\.')+'(?:[\\s,]|$)').test(list);
+    },
+
+    ignoreHost: function(host) {
+        if (this.isIgnoredHost(host)) return;
+
+        var list = "";
+        try {
+            list = this.prefs.getCharPref("hosts.ignore");
+        } catch (e) {}
+
+        this.prefs.setCharPref("hosts.ignore", list +" "+ host);
+    },
+
     outnew: function(browser, certobj) {
 	var forcePopup = false;
 	try {
-	    if (this.prefs) forcePopup = this.prefs.getBoolPref("popup.new");
+	    if (this.prefs) this.prefs.getBoolPref(certobj.warn.wildcard ? "popup.wild" : "popup.new");
+	} catch (err) {}
+
+	try {
+	    if (!forcePopup && (!certobj.warn.wildcard && !this.prefs.getBoolPref("notify.new") ||
+                                certobj.warn.wildcard && !this.prefs.getBoolPref("notify.wild")))
+                return;
 	} catch (err) {}
 
 	var notifyBox = this.getNotificationBox(browser);
@@ -895,6 +923,7 @@ var CertPatrol = {
 ##      // http://gist.github.com/256554
 ##      // using certobj.host as the id for the notification
 	if (notifyBox && !popup) {
+	    var timeout;
 	    var n = notifyBox.appendNotification(
 	      "(CertPatrol) "+ certobj.host +": "+certobj.event +" "+
 	      certobj.now.commonName +". "+
@@ -904,12 +933,14 @@ var CertPatrol = {
 		label: this.locale.reject,
 		accessKey: this.locale.reject_key,
 		callback: function(msg, btn) {
+		    if (timeout) clearTimeout(timeout);
 		    CertPatrol.delCert(certobj.host);
 		}
 	    }, {
 		label: this.locale.viewDetails,
 		accessKey: this.locale.viewDetails_key,
 		callback: function(msg, btn) {
+		    if (timeout) clearTimeout(timeout);
 		    browser.contentWindow.openDialog("chrome://certpatrol/content/new.xul",
 						     "_blank", "chrome,dialog,modal",
 						     certobj, CertPatrol);
@@ -918,12 +949,12 @@ var CertPatrol = {
 	    n.persistence = 10; // make sure it stays visible after redirects
 
 	    try {
-		var timeout = this.prefs.getIntPref("notify.timeout");
-		if (timeout > 0) {
-		    setTimeout(function() {
-			notifyBox.removeNotification(n);
+		var t = this.prefs.getIntPref("notify.timeout");
+		if (t > 0) {
+		    timeout = setTimeout(function() {
+			if (n.parentNode) notifyBox.removeNotification(n);
 			n = null;
-		    }, timeout * 1000);
+		    }, t * 1000);
 		}
 	    } catch (err) {}
 	}
@@ -936,7 +967,7 @@ var CertPatrol = {
 	var forcePopup = false;
 	try {
 	    if (this.prefs)
-	      forcePopup = this.prefs.getBoolPref(certobj.warn.wildcard ? "popup.wild" : "popup.change");
+	      forcePopup = this.prefs.getBoolPref("popup.change");
 	} catch (err) {}
 
 	var notifyBox = this.getNotificationBox(browser);
@@ -953,6 +984,7 @@ var CertPatrol = {
 	      if (this.locale["warn_"+k])
 	      warn += " *** " + this.locale["warn_"+k];
 
+	    var timeout;
 	    var n = notifyBox.appendNotification(
 	      "(CertPatrol) "+ certobj.host +": "+ certobj.event +" "+
 	      certobj.now.commonName +". "+
@@ -962,12 +994,14 @@ var CertPatrol = {
 		label: this.locale.accept,
 		accessKey: this.locale.accept_key,
 		callback: function(msg, btn) {
+		    if (timeout) clearTimeout(timeout);
 		    CertPatrol.saveCert(certobj);
 		}
 	    }, {
 		label: this.locale.viewDetails,
 		accessKey: this.locale.viewDetails_key,
 		callback: function(msg, btn) {
+		    if (timeout) clearTimeout(timeout);
 		    browser.contentWindow.openDialog("chrome://certpatrol/content/change.xul",
 						     "_blank", "chrome,dialog,modal",
 						     certobj, CertPatrol);
@@ -977,13 +1011,15 @@ var CertPatrol = {
 
 	    if (certobj.threat == 0) {
 		try {
-		    var timeout = this.prefs.getIntPref("notify.timeout");
-		    if (timeout > 0) {
-			setTimeout(function() {
-			    notifyBox.removeNotification(n);
-			    CertPatrol.saveCert(certobj);
+		    var t = this.prefs.getIntPref("notify.timeout");
+		    if (t > 0) {
+			timeout = setTimeout(function() {
+			    if (n.parentNode) {
+			        notifyBox.removeNotification(n);
+			        CertPatrol.saveCert(certobj);
+                            }
 			    n = certobj = null;
-			}, timeout * 1000);
+			}, t * 1000);
 		    }
 		} catch (err) {}
 	    }

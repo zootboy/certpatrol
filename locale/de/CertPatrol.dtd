@@ -38,7 +38,7 @@
 <!ENTITY viewNewCert		"Betrachte neues Zertifikat">
 <!ENTITY viewNewCert_key	"N">
 <!ENTITY viewDetails		"Details anschauen">
-<!ENTITY viewDetails_key	"D">
+<!ENTITY viewDetails_key	"S">
 
 <!ENTITY accept			"Annehmen">
 <!ENTITY accept_key		"A">
@@ -46,6 +46,8 @@
 <!ENTITY reject_key		"V">
 <!ENTITY issuerOnly		"Zuviele Meldungen? Beachte für diese Domain nur die Zertifizierungsstelle">
 <!ENTITY issuerOnly_key		"Z">
+<!ENTITY ignoreHost		"TODO: Add to ignore list">
+<!ENTITY ignoreHost_key		"TODO: I">
 
 <!ENTITY warn_wildcard		"Info: Dieses Wildcard-Zertifikat wird auch für andere Sites dieser Domain eingesetzt.">
 <!ENTITY warn_commonName	"Warnung: Name der Site hat sich geändert. Schau mal ob das ok ist so.">
