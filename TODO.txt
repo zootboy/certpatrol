@@ -30,6 +30,8 @@ TODO / WISHLIST
    but is it actually better than iso?
    sometimes javascript can't parse mozilla's certificate date formats.. #fail
  + provide a preset sqlite database with most popular certificates
+ + make PSYC streams out of incoming certificates as seen at
+   the https://www.eff.org/observatory ?
 
 === FEEDBACK ===
 
