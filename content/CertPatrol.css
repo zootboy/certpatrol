@@ -40,6 +40,6 @@
 }
 
 .threat-0 { }
-.threat-1 { background-color: darkgreen; }
-.threat-2 { background-color: darkorange; }
-.threat-3 { background-color: darkred; }
+.threat-1 { color: white; background-color: darkgreen; }
+.threat-2 { color: white; background-color: darkorange; }
+.threat-3 { color: white; background-color: darkred; }
