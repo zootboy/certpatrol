@@ -32,6 +32,7 @@ TODO / WISHLIST
  + provide a preset sqlite database with most popular certificates
  + make PSYC streams out of incoming certificates as seen at
    the https://www.eff.org/observatory ?
+ + a logging option, so that suspect cert changes can be revisited
 
 === FEEDBACK ===
 
