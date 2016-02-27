@@ -14,6 +14,8 @@ Il tuo web browser ha molta fiducia per tante autorità e sub-autorità di certifi
 
 * Developer Comments
 
+*NOTE*: check out [[https://github.com/tg-x/libcertpatrol][libcertpatrol]], a C library version of Certificate Patrol with improved functionality
+
 You'll see certificate information pop up whenever you visit a
 new HTTPS website, including https://addons.mozilla.org for
 example. "New" is anything Patrol hasn't seen and stored yet.
