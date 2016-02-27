@@ -2,7 +2,7 @@
  * Version: MPL 1.1/GPL 2.0/LGPL 2.1
  *
  * ''Certificate Patrol'' was conceived by Carlo v. Loesch and
- * implemented by Aiko Barz, Mukunda Modell, Carlo v. Loesch and Gabor Adam Toth.
+ * implemented by Aiko Barz, Mukunda Modell, Carlo v. Loesch and Gabor X Toth.
  *
  * http://patrol.psyced.org
  *
