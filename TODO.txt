@@ -2,6 +2,16 @@ See also http://psyced.org:33333/@patrol?scratchpad
 
 http://thedropbox.acmetoy.com/documents/BHUSA09-Sotirov-AttackExtSSL-PAPER.pdf
 
+
+*** tg's update 2016
+
+libcertpatrol fixes most of the annoying things certpatrol has
+it would need some more testing to see if it's actually usable..
+and since mozilla is deprecating XUL & XPCOM, it does not make 
+much sense anymore to try to fix the old extension, see
+https://blog.mozilla.org/addons/2015/08/21/the-future-of-developing-firefox-add-ons/
+ 
+
 ======/--------
 TODO / WISHLIST
 ====/----------
