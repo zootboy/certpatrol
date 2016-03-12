@@ -16,6 +16,9 @@ https://blog.mozilla.org/addons/2015/08/21/the-future-of-developing-firefox-add-
 TODO / WISHLIST
 ====/----------
 
+ - Bassie: Would it be possible to change to certificate changed popup to 
+	   show the SHA256 and SHA1 instead of the md5 which is not used
+	   and the SHA1 which is only sometimes used
  ? blacklist of untrustworthy CAs? (can't you just remove them?)
    jmd says: the possibility to configure a watch string wenever you access
 	     a site that uses a certification path where one of the CA
