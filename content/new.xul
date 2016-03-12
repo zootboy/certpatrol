@@ -6,7 +6,7 @@
 <dialog id="ssl-new"
   title="Certificate Patrol"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  persist="screenX screenY width height" width="800" height="370"
+  persist="screenX screenY width height" width="830" height="370"
   buttons="accept,cancel"
   onload="return onLoad()"
   buttonlabelaccept="&accept;"
@@ -34,7 +34,7 @@ function onLoad() {
     $("cmdiag").setAttribute("title", certobj.event);
 
     var keys = [ 'commonName', 'organization', 'organizationalUnit',
-	         'md5Fingerprint', 'sha1Fingerprint',
+	         'md5Fingerprint', 'sha1Fingerprint', 'sha256Fingerprint',
 	      // NOT SHOWN ANYMORE (go details):
 	      // 'serialNumber',
 	      // 'issuerCommonName', 'issuerOrganization',
@@ -120,6 +120,10 @@ function onLoad() {
         <row>
           <label id="cmisha1l" value="&sha1Fingerprint;" />
           <textbox class="plain" readonly="true" size="64" id="issuerSha1Fingerprint" />
+        </row
+        <row>
+          <label id="cmisha256l" value="&sha256Fingerprint;" />
+          <textbox class="plain" readonly="true" size="64" id="issuerSha256Fingerprint" />
         </row -->
         <groupbox>
           <caption id="cmvalid" label="&validity;" />
@@ -142,6 +146,10 @@ function onLoad() {
         <row>
           <label id="cmsha1l" value="&sha1Fingerprint;" />
           <textbox class="plain" readonly="true" size="64" id="sha1Fingerprint" />
+        </row>
+        <row>
+          <label id="cmsha256l" value="&sha256Fingerprint;" />
+          <textbox class="plain" readonly="true" size="64" id="sha256Fingerprint" />
         </row>
       </rows>
     </grid>

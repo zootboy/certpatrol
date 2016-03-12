@@ -88,7 +88,7 @@ var CP_CertManager = {
 		if (chain && chain.length > 1) {
 		    issuer = chain.queryElementAt(chain.length - 1, Ci.nsIX509Cert);
 		    key = ['\0', issuer.organization, issuer.organizationUnit,
-			   issuer.sha1Fingerprint, issuer.md5Fingerprint].join('|');
+			   issuer.sha256Fingerprint, issuer.sha1Fingerprint, issuer.md5Fingerprint].join('|');
 		} else {
 		    issuer = c.issuer;
 		    key = [c.issuer.organization, c.issuer.organizationUnit].join('|');
@@ -309,7 +309,7 @@ CP_TreeView.prototype.sort = function(key) {
 CP_TreeView.getRow = function(data, level) {
     var cert = data.cert || data;
     return {
-	id: (cert.sha1Fingerprint + cert.md5Fingerprint) || (cert.organization +"|"+ cert.organizationUnit),
+	id: (cert.sha256Fingerprint + cert.sha1Fingerprint + cert.md5Fingerprint) || (cert.organization +"|"+ cert.organizationUnit),
 	level: level,
 	open: false,
 	children: [],
@@ -321,6 +321,7 @@ CP_TreeView.getRow = function(data, level) {
 		host: d.host || cert.organization,
 		commonName: cert.commonName || cert.organizationUnit,
 		serialNumber: cert.serialNumber,
+		sha256Fingerprint: cert.sha256Fingerprint,
 		sha1Fingerprint: cert.sha1Fingerprint,
 		md5Fingerprint: cert.md5Fingerprint,
 		notBefore: CertPatrol.isodatedelta(cert.validity.notBefore),

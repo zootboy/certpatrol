@@ -6,7 +6,7 @@
 <dialog id="ssl-change"
   title="Certificate Patrol"
   xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
-  persist="screenX screenY width height" width="800" height="600"
+  persist="screenX screenY width height" width="830" height="630"
   buttons="extra1,accept,cancel"
   onload="return onLoad()"
   buttonlabelextra1="&ignoreHost;"
@@ -47,7 +47,8 @@
 	          "notBefore", "notAfter",
                   "issuerCommonName", "issuerOrganization", "issuerOrganizationUnit",
                   "issuerMd5Fingerprint", "issuerSha1Fingerprint",
-                  "md5Fingerprint", "sha1Fingerprint"];
+                  "md5Fingerprint", "sha1Fingerprint",
+                  "md5Fingerprint", "sha256Fingerprint"];
       for (var i in keys) {
           var key = keys[i];
           if (certobj.now[key] == certobj.old[key]) {
@@ -179,6 +180,13 @@
 	    <textbox class="plain" readonly="true" id="sha1Fingerprint2" />
 	  </vbox>
         </row>
+        <row>
+          <label id="cmsha256l" value="&sha256Fingerprint;" />
+	  <vbox flex="256">
+	    <textbox class="plain" readonly="true" id="sha256Fingerprint" />
+	    <textbox class="plain" readonly="true" id="sha256Fingerprint2" />
+	  </vbox>
+        </row>
         <groupbox>
           <caption id="cmvalid" label="&validity;" />
         </groupbox>
@@ -238,6 +246,13 @@
 	  <vbox flex="1">
 	    <textbox class="plain" readonly="true" id="issuerSha1Fingerprint" />
 	    <textbox class="plain" readonly="true" id="issuerSha1Fingerprint2" />
+	  </vbox>
+        </row>
+        <row>
+          <label id="cmisha256l" value="&sha256Fingerprint;" />
+	  <vbox flex="256">
+	    <textbox class="plain" readonly="true" id="issuerSha256Fingerprint" />
+	    <textbox class="plain" readonly="true" id="issuerSha256Fingerprint2" />
 	  </vbox>
         </row>
       </rows>

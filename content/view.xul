@@ -21,7 +21,7 @@ function onLoad() {
     $("cmdiag").setAttribute("title", certobj.host);
 
     var keys = [ "commonName", "organization", "organizationalUnit",
-	         "md5Fingerprint", "sha1Fingerprint",
+	         "md5Fingerprint", "sha1Fingerprint", "sha256Fingerprint",
 	         "serialNumber", "emailAddress",
     ];
     for (var i=0; i<keys.length; i++)
@@ -108,6 +108,10 @@ function onLoad() {
         <row>
           <label id="cmsha1l" value="&sha1Fingerprint;" />
           <textbox class="plain" readonly="true" size="64" id="sha1Fingerprint" />
+        </row>
+        <row>
+          <label id="cmsha256l" value="&sha256Fingerprint;" />
+          <textbox class="plain" readonly="true" size="64" id="sha256Fingerprint" />
         </row>
       </rows>
     </grid>

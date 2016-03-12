@@ -26,6 +26,7 @@
 <!ENTITY stored			"Memorizzato il:">
 <!ENTITY md5Fingerprint		"Impronta MD5:">
 <!ENTITY sha1Fingerprint	"Impronta SHA1:">
+<!ENTITY sha256Fingerprint	"Impronta SHA256:">
 
 <!ENTITY oldCert		"Vecchio certificato:">
 <!ENTITY newCert		"Nuovo certificato:">
@@ -64,6 +65,7 @@
 <!ENTITY certManager.confirmDelete	"Sei sicuro di rimuovere i seguenti certificati dalla memoria di CertPatrol?">
 
 <!ENTITY certManager.sha1		"Impronta SHA1">
+<!ENTITY certManager.sha256		"Impronta SHA256">
 <!ENTITY certManager.md5		"Impronta MD5">
 <!ENTITY certManager.stored		"Memorizzato il">
 

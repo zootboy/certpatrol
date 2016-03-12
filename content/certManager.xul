@@ -55,6 +55,9 @@
             <treecol id="stored" label="&certManager.stored;"
                      persist="hidden width ordinal" flex="5"/>
             <splitter class="tree-splitter"/>
+            <treecol id="sha256Fingerprint" label="&certManager.sha256;" hidden="true"
+                     persist="hidden width ordinal" flex="5"/>
+            <splitter class="tree-splitter"/>
             <treecol id="sha1Fingerprint" label="&certManager.sha1;" hidden="true"
                      persist="hidden width ordinal" flex="5"/>
             <splitter class="tree-splitter"/>
