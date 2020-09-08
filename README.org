@@ -1,5 +1,9 @@
 * Certificate Patrol
 
+*** Pale Moon Update
+
+This extension does not seem to have had any activity in quite some time. It no longer runs in modern Firefox due to the Great XUL Purge(TM), however the Pale Moon browser still supports XUL plugins, so this fork is simply the bare minimum patching to keep it functional for use in Pale Moon. Contributions welcome!
+
 Your web browser trusts a lot of certification authorities and chained sub-authorities, and it does so blindly. [[http://en.wikipedia.org/wiki/Intermediate_certificate_authorities][Subordinate or intermediate certification authorities]] are a little known device: The root CAs in your browser can delegate permission to issue certificates to an unlimited amount of subordinate CAs ([[http://www.linuxsecurity.com/component/option,com_dictionary/task,view/id,411/][SCA]]) just by signing their certificate, not by borrowing their precious private key to them. You can even buy yourself such a CA from [[http://geotrust.com/enterprise-ssl-certificates/georoot/][GeoTrust]] or [[http://www.sslshopper.com/article-trusted-root-signing-certificates.html][elsewhere]].
 
 It is unclear how many intermediate certification authorities really exist, and yet each of them has /god-like power/ to impersonate any HTTPS web site using a [[http://en.wikipedia.org/wiki/Man-in-the-middle_attack][Man in the Middle]] (MITM) attack scenario. [[http://www.freedom-to-tinker.com/blog/sjs/web-security-trust-models][Researchers at Princeton are acknowledging this problem]] and recommending Certificate Patrol.  Revealing the inner workings of [[http://en.wikipedia.org/wiki/X.509][X.509]] to end users is still deemed too difficult, but only getting familiar with this will really help you get in control. That's why Certificate Patrol gives you insight of what is happening.
@@ -66,6 +70,7 @@ Wildcard functionality was contributed by Georg Koppen, JonDos GmbH 2010.
 New features by Gabor X Toth.
 SHA256 support by Christoph Biedl.
 Originally conceived, planned and continously refined by [[http://psyced.org/~lynX][the lynX]] (Carlo v. Loesch).
+Maintenance patching for Pale Moon by Sean Greenslade.
 
 ** Testing the add-on
 

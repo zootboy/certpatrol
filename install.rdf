@@ -7,7 +7,7 @@
     <em:id>CertPatrol@PSYC.EU</em:id>
     <em:type>2</em:type>    <!-- Extension -->
     <em:name>Certificate Patrol</em:name>
-    <em:version>2.0.16</em:version>
+    <em:version>2.1.0</em:version>
     <em:unpack>false</em:unpack>
     <em:creator>Carlo v. Loesch</em:creator>
     <em:developer>Aiko Barz</em:developer>
