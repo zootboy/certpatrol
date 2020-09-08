@@ -4,10 +4,10 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
-    <em:id>CertPatrol@PSYC.EU</em:id>
+    <em:id>CertPatrol@zootboy.com</em:id>
     <em:type>2</em:type>    <!-- Extension -->
     <em:name>Certificate Patrol</em:name>
-    <em:version>2.1.0</em:version>
+    <em:version>2.1.1</em:version>
     <em:unpack>false</em:unpack>
     <em:creator>Carlo v. Loesch</em:creator>
     <em:developer>Aiko Barz</em:developer>
@@ -15,6 +15,7 @@
     <em:developer>Mukunda Modell</em:developer>
     <em:contributor>Georg Koppen</em:contributor>
     <em:contributor>Christoph Biedl</em:contributor>
+    <em:contributor>Sean Greenslade</em:contributor>
     <!-- em:translator>French? Spanish? anyone?</em:translator -->
     <em:homepageURL>http://patrol.psyced.org</em:homepageURL>
     <em:optionsURL>chrome://certpatrol/content/prefs.xul</em:optionsURL>

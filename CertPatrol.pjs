@@ -38,7 +38,7 @@
 // This source code is formatted according to half-indented KNF.
 var CertPatrol = {
     CHECK_ISSUER_ONLY: 1,
-    extID: "CertPatrol@PSYC.EU",
+    extID: "CertPatrol@zootboy.com",
     locale: {},
 
     // Main
