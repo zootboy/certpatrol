@@ -11,7 +11,7 @@ it: $N.xpi
 
 content/CertPatrol.js: CertPatrol.pjs
 	@rm -f $@
-	prep CertPatrol.pjs > $@
+	grep -v '^\(##\|#//\)' CertPatrol.pjs > $@
 	@chmod a-w $@
 
 up:
